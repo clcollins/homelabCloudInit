@@ -1,0 +1,19 @@
+#cloud-config
+
+groups:
+ - wheel
+
+write_files:
+# - encoding: b64
+#   content: RG9lcyBpdCB3b3JrPwo=
+ - content: |
+     "Does cloud-init work?"
+   owner: root:root
+   permissions: '0644'
+   path: /srv/foo
+ - content: |
+    "IT SURE DOES!"
+   owner: root:root
+   permissions: '0644'
+   path: /srv/bar
+

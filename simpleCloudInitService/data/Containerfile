@@ -1,0 +1,29 @@
+FROM fedora:31
+LABEL maintainer "Chris Collins <collins.christopher@gmail.com>"
+
+ENV NGINX_CONF_DIR "/etc/nginx/default.d"
+ENV NGINX_LOG_DIR "/var/log/nginx"
+ENV NGINX_CONF "/etc/nginx/nginx.conf"
+ENV WWW_DIR "/usr/share/nginx/html"
+
+# Install Nginx and clear the yum cache
+RUN dnf install -y nginx \
+      && dnf clean all \
+      && rm -rf /var/cache/yum
+
+# forward request and error logs to docker log collector
+RUN ln -sf /dev/stdout ${NGINX_LOG_DIR}/access.log \
+    && ln -sf /dev/stderr ${NGINX_LOG_DIR}/error.log
+
+# Listen on port 8080, so root privileges are not required for podman
+RUN sed -i -E 's/(listen)([[:space:]]*)(\[\:\:\]\:)?80;$/\1\2\38080 default_server;/' $NGINX_CONF
+EXPOSE 8080
+
+# Allow Nginx PID to be managed by non-root user
+RUN sed -i '/user nginx;/d' $NGINX_CONF
+RUN sed -i 's/pid \/run\/nginx.pid;/pid \/tmp\/nginx.pid;/' $NGINX_CONF
+
+# Run as an unprivileged user
+USER 1001
+
+CMD ["nginx", "-g", "daemon off;"]

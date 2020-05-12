@@ -4,7 +4,7 @@ Cloud Init is an industry standard, widely utilized method for initializing clou
 
 ![A screen showing the boot process for a Linux server running cloud-init](img/cloud-init.jpg)
 
-Admittedly, Cloud Init has more utility to a cloud provider provisioning machines for many different clients.  For a homelab run by a single sysadmin, much of what Cloud Init solves might be a little superfluous.  However, getting it setup and learning how it works is a great way to learn more about this cloud technology, and it does still have utility for configuring your devices on first boot.
+Admittedly, Cloud Init has more utility to a cloud provider provisioning machines for many different clients.  For a homelab run by a single sysadmin, much of what Cloud Init solves might be a little superfluous.  However, getting it setup and learning how it works is a great way to learn more about this cloud technology, and its still useful for configuring your devices on first boot.
 
 Today we will learn about Cloud Init and its "NoCloud" datasource, designed to allow the use of Cloud Init outside of a traditional cloud provider setting.  To do that we will install Cloud Init on a client device and set up a container running a web service to respond to the client's requests. We will investigate what the client is requesting from the web service and modify the web service container to serve a basic, static Cloud Init service.
 
@@ -23,7 +23,7 @@ On a system that you would like to be a Cloud Init client, install the cloud-ini
 dnf install -y cloud-init
 ```
 
-Cloud Init is actually four different services (at least with Systemd), each in charge of retrieving config data and performing configuration changes during a different part of the boot process, allowing for greater flexibility in what can be done. While it is unlikely you will intereact with these services directly much, it is useful to know what they are in the event you need to troubleshoot something:
+Cloud Init is actually four different services (at least with Systemd), each in charge of retrieving config data and performing configuration changes during a different part of the boot process, allowing for greater flexibility in what can be done. While it is unlikely you will interact with these services directly very often, it is useful to know what they are in the event you need to troubleshoot something:
 
 * cloud-init-local.service
 * cloud-init.service
@@ -42,7 +42,7 @@ systemctl enable cloud-final.service
 
 ### Configure the datasource to query
 
-Once the service is enabled, configure the datasource from which the client will query the config data. There are a [large number of datasource types](https://cloudinit.readthedocs.io/en/latest/topics/datasources.html), most configured for specific cloud providers.  We will be using the "NoCloud" datasource, which as mentioned is designed for using Cloud Init without a cloud provider.
+Once the service is enabled, configure the datasource from which the client will query the config data. There are a [large number of datasource types](https://cloudinit.readthedocs.io/en/latest/topics/datasources.html), most configured for specific cloud providers.  We will be using the "NoCloud" datasource which, as mentioned, is designed for using Cloud Init without a cloud provider.
 
 NoCloud allows configuration information to be included a number of ways: as key/value pairs in kernel parameters, using a CD (or virtual CD, in the case of virtual machines) mounted at startup, a file included on the filesystem, or, in the case we will use today, via HTTP from a URL we provide (the "NoCloud Net" option).
 

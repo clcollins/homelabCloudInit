@@ -2,6 +2,8 @@
 
 Cloud Init is an industry standard, widely utilized method for initializing cloud instances. Cloud providers use Cloud Init to customize instances with network configuration, instance information, and even user-provided configuration directives. Cloud Init is a great tool to add to your Private Cloud at Home to learn more about how the large cloud providers work, and to add a little automation to the initial setup and configuration of both virtual and physical machines within your homelab. For a bit more detail, check out my previous article on [what Cloud Init is and why it is useful](LINK TO PREVIOUS ARTICLE).
 
+![A screen showing the boot process for a Linux server running cloud-init](img/cloud-init.jpg)
+
 Admittedly, Cloud Init has more utility to a cloud provider provisioning machines for many different clients.  For a homelab run by a single sysadmin, much of what Cloud Init solves might be a little superfluous.  However, getting it setup and learning how it works is a great way to learn more about this cloud technology, and it does still have utility for configuring your devices on first boot.
 
 Today we will learn about Cloud Init and its "NoCloud" datasource, designed to allow the use of Cloud Init outside of a traditional cloud provider setting.  To do that we will install Cloud Init on a client device and set up a container running a web service to respond to the client's requests. We will investigate what the client is requesting from the web service and modify the web service container to serve a basic, static Cloud Init service.
@@ -107,6 +109,8 @@ USER 1001
 CMD ["nginx", "-g", "daemon off;"]
 ```
 
+_Note: the example Containerfile and other files used in this example can be found in the accompanying repository: [https://github.com/clcollins/homelabCloudInit/tree/master/simpleCloudInitService/data](https://github.com/clcollins/homelabCloudInit/tree/master/simpleCloudInitService/data)_
+
 The most important part of the Containerfile above is the section changing how the logs are stored (writing to STDOUT rather than a file), so we can see requests coming into the server in the container logs. A few other changes are included so we can run the container with Podman without root privileges, and the processes in the container can run without root as well.
 
 This first pass at the webserver does not serve any cloud-init data; we will just use this to see what the cloud-init client is requesting from it.
@@ -144,7 +148,7 @@ As the client finishes its boot process, you should see log messages similar to 
 127.0.0.1 - - [09/May/2020:22:44:28 +0000] "GET /meta-data HTTP/1.1" 404 3650 "-" "Cloud-Init/17.1" "-"
 ```
 
-Note: use CTRL-C to stop the running container.
+_Note: use CTRL-C to stop the running container._
 
 You can see the request is for the `/meta-data` path - ie: `http://ip_address_of_the_webserver:8080/meta-data`. This is just a GET request - cloud-init is not POSTing (sending) any data to the webserver. It is just blindly requesting the files from the datasource URL, so it is up to the datasource to identify what host is asking.  In this simple example, we are just sending generic data to any client, but a larger homelab will need a more sophisticated service.
 
